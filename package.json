@@ -1,0 +1,17 @@
+{
+  "name": "button-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bluetooth-serial-port": "^2.2.6",
+    "install": "^0.13.0",
+    "npm": "^6.13.0",
+    "prettier": "^1.19.1"
+  }
+}
