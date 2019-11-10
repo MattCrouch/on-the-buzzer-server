@@ -1,5 +1,6 @@
 const Button = require("./Button");
 const BUTTON_EVENTS = require("./events/button");
+const WEBSOCKET_EVENTS = require("./events/websocket");
 
 const { broadcast, close } = require("./websocket");
 
@@ -12,7 +13,10 @@ if (BUTTON_1) {
     .then(() => {
       BUTTON_1.on(BUTTON_EVENTS.DOWN, () => {
         console.log("1️⃣ - BUTTON 1");
-        broadcast("button 1", "pressed");
+
+        broadcast(WEBSOCKET_EVENTS.BUZZ, {
+          button: 1
+        });
       });
     })
     .catch(() => {
@@ -25,7 +29,10 @@ if (BUTTON_2) {
     .then(() => {
       BUTTON_2.on(BUTTON_EVENTS.DOWN, () => {
         console.log("2️⃣ - BUTTON 2");
-        broadcast("button 2", "pressed");
+
+        broadcast(WEBSOCKET_EVENTS.BUZZ, {
+          button: 2
+        });
       });
     })
     .catch(() => {
