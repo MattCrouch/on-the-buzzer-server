@@ -12,6 +12,8 @@
     "bluetooth-serial-port": "^2.2.6",
     "install": "^0.13.0",
     "npm": "^6.13.0",
-    "prettier": "^1.19.1"
+    "prettier": "^1.19.1",
+    "uuid": "^3.3.3",
+    "ws": "^7.2.0"
   }
 }

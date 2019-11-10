@@ -1,6 +1,6 @@
 const EventEmitter = require("events");
 const { BluetoothSerialPort } = require("bluetooth-serial-port");
-const EVENTS = require("./buttonEvents");
+const EVENTS = require("./events/button");
 
 const BUTTON_STATE_POSITION = 29;
 
