@@ -57,6 +57,10 @@ class Button extends EventEmitter {
     });
   }
 
+  isConnected() {
+    return this.connection.isOpen();
+  }
+
   close() {
     if (this.connection.isOpen()) {
       this.connection.close();
