@@ -1,80 +1,82 @@
-const WebSocket = require("ws");
+const EventEmitter = require("events");
+const ws = require("ws");
 const url = require("url");
 const uuid = require("uuid/v4");
 
 const PING_INTERVAL = 30000;
 
-// Start the server
-const server = new WebSocket.Server({ port: 8080 });
+class WebSocket extends EventEmitter {
+  constructor() {
+    super();
 
-// Check the client is still around
-const ping = () => {
-  server.clients.forEach(client => {
-    // If the client hasn't responded since the last ping...
-    if (client.isAlive === false) {
-      // ...kill the connection
-      client.terminate();
-    }
+    this.server = new ws.Server({ port: 8080 });
 
-    // If the client is still alive...
-    if (client.readyState === WebSocket.OPEN) {
-      // Mark them as awaiting a response
-      client.isAlive = false;
-      // Send the ping
-      client.ping();
-    }
-  });
-};
+    this.server.on("connection", (client, req) => {
+      // See if they have an ID already
+      const {
+        query: { id }
+      } = url.parse(req.url, true);
 
-// What to do when the client responds to the ping
-const pong = () => {
-  // Mark them as still alive before the next set of pings
-  this.isAlive = true;
-};
+      // Add client with ID
+      this.addClient(client, id);
+    });
 
-// Make sure all clients are still around
-const interval = setInterval(ping, PING_INTERVAL);
+    // Make sure all clients are still around
+    setInterval(this.ping.bind(this), PING_INTERVAL);
+  }
 
-// Define what happens when a client connects
-server.on("connection", (client, req) => {
-  // See if they have an ID already
-  const {
-    query: { id }
-  } = url.parse(req.url, true);
+  log(...args) {
+    console.log(`🖥 Server`, ...args);
+  }
 
-  // Add client with ID
-  addClient(client, id);
-});
+  ping() {
+    this.server.clients.forEach(client => {
+      this.log("ping!");
+      // If the client hasn't responded since the last ping...
+      if (client.isAlive === false) {
+        // ...kill the connection
+        client.terminate();
+      }
 
-const addClient = (client, connectionId) => {
-  // Generate a unique ID, or use the one supplied
-  const id = connectionId ? connectionId : uuid();
-  client.id = id;
+      // If the client is still alive...
+      if (client.readyState === WebSocket.OPEN) {
+        // Mark them as awaiting a response
+        client.isAlive = false;
+        // Send the ping
+        client.ping();
+      }
+    });
+  }
 
-  // Record client is still alive
-  client.on("pong", pong);
-};
+  addClient(client, connectionId) {
+    // Generate a unique ID, or use the one supplied
+    const id = connectionId ? connectionId : uuid();
+    client.id = id;
 
-// Tell all clients about something happening
-const broadcast = (event, payload) => {
-  server.clients.forEach(client => {
-    // Check if the client is still active
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(
-        JSON.stringify({
-          event,
-          payload
-        })
-      );
-    }
-  });
-};
+    this.log(`Client added - ${id}`);
 
-const close = () => {
-  server.close();
-};
+    // Record client is still alive
+    client.on("pong", () => (this.isAlive = true));
+  }
 
-module.exports = {
-  broadcast,
-  close
-};
+  // Tell all clients about something happening
+  broadcast(event, payload) {
+    this.server.clients.forEach(client => {
+      // Check if the client is still active
+      if (client.readyState === ws.OPEN) {
+        client.send(
+          JSON.stringify({
+            event,
+            payload
+          })
+        );
+      }
+    });
+  }
+
+  close() {
+    this.server.close();
+  }
+}
+
+module.exports = WebSocket;

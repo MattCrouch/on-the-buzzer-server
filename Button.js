@@ -11,8 +11,8 @@ class Button extends EventEmitter {
     this.address = address;
   }
 
-  log(message) {
-    console.log(this.name, message);
+  log(...args) {
+    console.log(`📣 ${this.name}`, ...args);
   }
 
   async connect() {

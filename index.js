@@ -2,10 +2,14 @@ const Button = require("./Button");
 const BUTTON_EVENTS = require("./events/button");
 const WEBSOCKET_EVENTS = require("./events/websocket");
 
-const { broadcast, close } = require("./websocket");
+const WebSocket = require("./WebSocket");
 
 const BUTTON_1 = new Button("Button 1", "4C-EF-C0-A6-A8-69");
 const BUTTON_2 = new Button("Button 2", "00-71-47-CB-B6-3D");
+// const BUTTON_1 = undefined;
+// const BUTTON_2 = undefined;
+
+const server = new WebSocket();
 
 let questionState;
 
@@ -18,7 +22,7 @@ if (BUTTON_1) {
         if (!questionState) {
           questionState = 1;
 
-          broadcast(WEBSOCKET_EVENTS.BUZZ, {
+          server.broadcast(WEBSOCKET_EVENTS.BUZZ, {
             button: 1
           });
         }
@@ -38,7 +42,7 @@ if (BUTTON_2) {
         if (!questionState) {
           questionState = 2;
 
-          broadcast(WEBSOCKET_EVENTS.BUZZ, {
+          server.broadcast(WEBSOCKET_EVENTS.BUZZ, {
             button: 2
           });
         }
@@ -59,7 +63,7 @@ process.on("SIGINT", () => {
     BUTTON_2.close();
   }
 
-  close();
+  server.close();
 
   process.exit();
 });
