@@ -15,38 +15,44 @@ class Button extends EventEmitter {
     console.log(this.name, message);
   }
 
-  connect() {
-    this.connection = new BluetoothSerialPort();
+  async connect() {
+    return new Promise((resolve, reject) => {
+      this.connection = new BluetoothSerialPort();
 
-    this.connection.findSerialPortChannel(
-      this.address,
-      channel => {
-        this.connection.connect(
-          this.address,
-          channel,
-          () => {
-            this.log("connected");
+      this.connection.findSerialPortChannel(
+        this.address,
+        channel => {
+          this.connection.connect(
+            this.address,
+            channel,
+            () => {
+              this.log("connected");
 
-            this.connection.on("data", buffer => {
-              if (buffer.length !== 40) {
-                // Not a button event (e.g. initialisation)
-                return;
-              }
+              this.connection.on("data", buffer => {
+                if (buffer.length !== 40) {
+                  // Not a button event (e.g. initialisation)
+                  return;
+                }
 
-              const isPressed = buffer[BUTTON_STATE_POSITION] === 0x02;
+                const isPressed = buffer[BUTTON_STATE_POSITION] === 0x02;
 
-              this.emit(isPressed ? EVENTS.DOWN : EVENTS.UP);
-            });
-          },
-          () => {
-            this.log("cannot connect");
-          }
-        );
-      },
-      () => {
-        this.log("Found nothing");
-      }
-    );
+                this.emit(isPressed ? EVENTS.DOWN : EVENTS.UP);
+              });
+
+              resolve();
+            },
+            () => {
+              this.log("cannot connect");
+              reject();
+            }
+          );
+        },
+        () => {
+          this.log("Found nothing");
+          reject();
+        }
+      );
+    });
   }
 
   close() {
