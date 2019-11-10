@@ -16,6 +16,8 @@ class Button extends EventEmitter {
   }
 
   async connect() {
+    this.log("connecting...");
+
     return new Promise((resolve, reject) => {
       this.connection = new BluetoothSerialPort();
 
@@ -56,7 +58,9 @@ class Button extends EventEmitter {
   }
 
   close() {
-    this.connection.close();
+    if (this.connection.isOpen()) {
+      this.connection.close();
+    }
   }
 }
 
