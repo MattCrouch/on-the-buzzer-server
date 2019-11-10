@@ -13,6 +13,15 @@ const server = new WebSocket();
 
 let questionState;
 
+server.on("message", (event, payload) => {
+  if (event === WEBSOCKET_EVENTS.RESET_QUESTION) {
+    // Clear ready for the next go
+    questionState = undefined;
+
+    server.broadcast(WEBSOCKET_EVENTS.QUESTION_RESETTED);
+  }
+});
+
 if (BUTTON_1) {
   BUTTON_1.connect()
     .then(() => {

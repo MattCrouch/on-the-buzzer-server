@@ -31,7 +31,7 @@ class WebSocket extends EventEmitter {
 
   ping() {
     this.server.clients.forEach(client => {
-      this.log("ping!");
+      this.log(`pinging ${client.id}`);
       // If the client hasn't responded since the last ping...
       if (client.isAlive === false) {
         // ...kill the connection
@@ -56,11 +56,22 @@ class WebSocket extends EventEmitter {
     this.log(`Client added - ${id}`);
 
     // Record client is still alive
+    client.on("message", this.onClientMessage.bind(this));
     client.on("pong", () => (this.isAlive = true));
   }
 
+  // Define what happens when a message is sent from a client
+  onClientMessage(message) {
+    try {
+      // Decode the string to an object
+      const { event, payload } = JSON.parse(message);
+
+      this.emit("message", event, payload);
+    } catch {}
+  }
+
   // Tell all clients about something happening
-  broadcast(event, payload) {
+  broadcast(event, payload = {}) {
     this.server.clients.forEach(client => {
       // Check if the client is still active
       if (client.readyState === ws.OPEN) {
