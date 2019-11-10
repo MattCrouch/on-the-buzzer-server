@@ -53,18 +53,6 @@ const addClient = (client, connectionId) => {
 
   // Record client is still alive
   client.on("pong", pong);
-
-  // Provide the new client with the current feedback
-  // client.send(
-  //   JSON.stringify({
-  //     action: CONSTANTS.INITIAL_STATE,
-  //     payload: {
-  //       id,
-  //       username: users[id],
-  //       feedback: feedback.map(f => ({ ...f, username: users[f.clientId] }))
-  //     }
-  //   })
-  // );
 };
 
 // Tell all clients about something happening
@@ -82,6 +70,11 @@ const broadcast = (event, payload) => {
   });
 };
 
+const close = () => {
+  server.close();
+};
+
 module.exports = {
-  broadcast
+  broadcast,
+  close
 };
