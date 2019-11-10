@@ -1,17 +1,18 @@
+const EventEmitter = require("events");
 const { BluetoothSerialPort } = require("bluetooth-serial-port");
 const EVENTS = require("./buttonEvents");
 
 const BUTTON_STATE_POSITION = 29;
 
-class Button {
+class Button extends EventEmitter {
   constructor(name, address) {
+    super();
     this.name = name;
     this.address = address;
-    this.subscribers = [];
   }
 
   log(message) {
-    console.log(`${this.name}`, message);
+    console.log(this.name, message);
   }
 
   connect() {
@@ -34,9 +35,7 @@ class Button {
 
               const isPressed = buffer[BUTTON_STATE_POSITION] === 0x02;
 
-              this.subscribers.forEach(subscriber =>
-                subscriber(isPressed ? EVENTS.DOWN : EVENTS.UP)
-              );
+              this.emit(isPressed ? EVENTS.DOWN : EVENTS.UP);
             });
           },
           () => {
@@ -52,10 +51,6 @@ class Button {
 
   close() {
     this.connection.close();
-  }
-
-  subscribe(callback) {
-    this.subscribers.push(callback);
   }
 }
 
