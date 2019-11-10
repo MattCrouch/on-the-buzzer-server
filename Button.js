@@ -1,6 +1,6 @@
 const { BluetoothSerialPort } = require("bluetooth-serial-port");
 
-const BUTTON_STATE_BUFFER_POSITION = 29;
+const BUTTON_STATE_POSITION = 29;
 
 class Button {
   constructor(name, address) {
@@ -25,16 +25,14 @@ class Button {
             this.log("connected");
 
             this.connection.on("data", buffer => {
-              // console.log("> receiving (" + buffer.length + " bytes):", buffer);
-              // console.log([...buffer]);
-              // console.log([...buffer][BUTTON_STATE_BUFFER_POSITION]);
+              if (buffer.length !== 40) {
+                // Not a button event (e.g. initialisation)
+                return;
+              }
 
-              // var isPressed = buffer[buffer.length - 2] == 0xc0;
-              // console.log(
-              //   " >> button is " + (isPressed ? "pressed" : "released")
-              // );
+              const isPressed = buffer[BUTTON_STATE_POSITION] === 0x02;
 
-              this.log("event");
+              this.log(isPressed ? "down" : "up");
             });
           },
           () => {
