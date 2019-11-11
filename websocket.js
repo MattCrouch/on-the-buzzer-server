@@ -2,6 +2,7 @@ const EventEmitter = require("events");
 const ws = require("ws");
 const url = require("url");
 const uuid = require("uuid/v4");
+const WEBSOCKET_EVENTS = require("./events/websocket");
 
 const PING_INTERVAL = 30000;
 
@@ -58,6 +59,15 @@ class WebSocket extends EventEmitter {
     // Record client is still alive
     client.on("message", this.onClientMessage.bind(this));
     client.on("pong", () => (this.isAlive = true));
+
+    client.send(
+      JSON.stringify({
+        event: WEBSOCKET_EVENTS.INITIAL_STATE,
+        payload: {
+          id
+        }
+      })
+    );
   }
 
   // Define what happens when a message is sent from a client
